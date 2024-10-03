@@ -12,7 +12,7 @@ The PlaybackLink SDK is an assist for dealing with BlendVision Backend API
 ## Integration
 
 ### In your settings.gradle file, `dependencyResolutionManagement` sections:
-[Gets username and password](https://github.com/BlendVision/Android-Playback-Link/wiki/Android%E2%80%90Playback%E2%80%90Link-pull-credentials)
+[Gets username and password](https://github.com/BlendVision/Android-Playback-Link-SDK/wiki/Android%E2%80%90Playback%E2%80%90Link-pull-credentials)
 ```groovy=
 dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
