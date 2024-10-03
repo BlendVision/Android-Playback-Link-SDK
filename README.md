@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     mavenCentral()
     //add below
     maven {
-      url = uri("https://maven.pkg.github.com/blendvision/Android-Playback-Link")
+      url = uri("https://maven.pkg.github.com/blendvision/Android-Playback-Link-SDK")
       credentials {
         username = //TODO
         password = //TODO
