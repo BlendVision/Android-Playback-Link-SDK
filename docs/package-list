@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:common
+com.blendvision.playback.link.common.presentation.entity
+module:core
+com.blendvision.playback.link.core.presentation
