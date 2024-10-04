@@ -12,8 +12,10 @@ The PlaybackLink SDK is an assist for dealing with BlendVision Backend API
 ## Integration
 
 ### In your settings.gradle file, `dependencyResolutionManagement` sections:
+
 [Gets username and password](https://github.com/BlendVision/Android-Playback-Link-SDK/wiki/Android%E2%80%90Playback%E2%80%90Link-pull-credentials)
-```groovy=
+
+```groovy
 dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
@@ -34,7 +36,7 @@ dependencyResolutionManagement {
 
 ### Add the dependencies for the Player SDK to your module's app-level Gradle file, normally app/build.gradle:
 
-```groovy=
+```groovy
 dependencies {
     implementation 'com.blendvision.playback.link:bvplaybacklink:$latest_version'
 }
@@ -43,73 +45,117 @@ dependencies {
 > **Note**: After making changes, don't forget to sync your Gradle files to ensure that the project
 > compiles successfully.
 
-## Interface
-```kotlin=
+## Usage
 
-val errorEvent: Flow<BVPlaybackLinkError>
+### Create a PlaybackLink instance:
 
-/**
- * Update the playback token
- */
-fun updatePlaybackToken(token: String)
+```kotlin
+// create a playback link instance
+val playbackLink = BVPlaybackLink.Builder(context).build()
 
-/**
- * Get the resource info for analysis
- *
- * @return The resource info for analysis, or null if error occurred
- */
-suspend fun getResourceInfo(): ResourceInfo?
-
-/**
- * Start a playback session with updated playback token
- */
-fun startSession()
-
-/**
- * End a playback session with updated playback token
- */
-fun endSession()
-
-/**
- * Release this instance
- */
-fun release()
+// optional: Enable debug mode
+// default is false
+val playbackLink = BVPlaybackLink.Builder(context).enableDebugMode(true).build()
 
 ```
 
-## Usage
-Positions 1 to 4 shown below are where the interface may be called.
-```kotlin=
-// 1
-val playbackLink = BVPlaybackLink.Builder().build()
-playbackLink.updatePlaybackToken(token)
+### Update the playback token to the playbackLink:
+
+```kotlin
+playbackLink.updatePlaybackToken([YOUR_PLAYBACK_TOKEN])
+```
+
+### Observes the playbackLink error event:
+
+```kotlin
+playbackLink.errorEvent.collect { error ->
+    val message = when (error) {
+        is BVPlaybackLinkError.ClientError -> error.message
+        is BVPlaybackLinkError.UnknownError -> error.message
+        ...etc
+    }
+}
+```
+
+### Get the resource info for analysis:
+
+You can get the resource info for analysis by calling the `getResourceInfo()` method.
+`ResourceInfo` contains the `id` and `type` of the resource.
+
+```kotlin
 val resourceInfo = playbackLink.getResourceInfo()
+```
 
+### Use the `resourceInfo` to set the `AnalyticsConfig` in the `Player` instance:
 
-val player = Player.Builder(
-        PlayerConfig(
-            licensekey = "XXXXXX",
-            serviceConfig = V2
-        )
-    )
-    .setAnalyticsConfig(
-        AnalyticsConfig(
-            // 2
-            resourceId = resourceInfo.id,
-            resourceType = resourceInfo.type
-        )
-    )
+```kotlin
+// input the resource info to the analytics config
+val analyticsConfig = AnalyticsConfig(
+    resourceId = resourceInfo.id,
+    resourceType = resourceInfo.type
+)
 
-    
-// load content to playback
-player.load(MediaConfig)
-playbackLink.startSession()             // 3
+val playerConfig = PlayerConfig(
+    licensekey = "XXXXXX",
+    serviceConfig = PlayerConfig.ServiceConfig(licenseVersion = PlayerConfig.ServiceConfig.LicenseVersion.V2)
+)
 
-// exit playback OR error occurs
-player.stop()
-player.release()
+val player = UniPlayer.Builder(context = context,playerConfig = playerConfig).setAnalyticsConfig(analyticsConfig=analyticsConfig).build()
 
-playbackLink.endSession()               // 4
+```
+
+### To start a playback session, which sends a heartbeat to increase concurrent viewers:
+
+```kotlin
+playbackLink.startSession()
+```
+
+### To end a playback session, which stops the heartbeat to decrease concurrent viewers:
+
+```kotlin
+playbackLink.endSession()
+```
+
+### Remember to release the instance when it's no longer needed:
+
+```kotlin
 playbackLink.release()
+```
 
+> For a full code example, please refer to the Sample app demo.
+
+## Additional BVPlaybackLink APIs
+
+```kotlin
+    /**
+     * Get the current playback token
+     */
+    fun getCurrentPlaybackToken(): String
+
+    /**
+     * Update the playback token
+     */
+    fun updatePlaybackToken(token: String)
+
+    /**
+     * Get the resource info for analysis
+     *
+     * @return The resource info for analysis, or null if error occurred
+     */
+    suspend fun getResourceInfo(): ResourceInfo?
+
+    /**
+     * Start a playback session with updated playback token
+     */
+    fun startSession()
+
+    /**
+     * End a playback session with updated playback token
+     */
+    fun endSession()
+
+    /**
+     * Release this instance
+     */
+    fun release()
 ```
