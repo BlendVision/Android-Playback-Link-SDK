@@ -122,7 +122,7 @@ playbackLink.endSession()
 playbackLink.release()
 ```
 
-> For a full code example, please refer to the Sample app demo.
+> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Sample)
 
 ## Additional BVPlaybackLink APIs
 
