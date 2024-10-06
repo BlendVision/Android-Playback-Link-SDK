@@ -65,14 +65,16 @@ val playbackLink = BVPlaybackLink.Builder(context).enableDebugMode(true).build()
 playbackLink.updatePlaybackToken([YOUR_PLAYBACK_TOKEN])
 ```
 
-### Observes the playbackLink error event:
+### Observes the playbackLink state event:
 
 ```kotlin
-playbackLink.errorEvent.collect { error ->
-    val message = when (error) {
-        is BVPlaybackLinkError.ClientError -> error.message
-        is BVPlaybackLinkError.UnknownError -> error.message
-        ...etc
+playbackLinker.stateEvent.collect { state ->
+    when (state) {
+        is BVPlaybackLinkState.GetResourceInfoSuccess -> //GET_RESOURCE_INFO_SUCCESS
+        is BVPlaybackLinkState.StartPlaybackSessionSuccess -> //START_PLAYBACK_SESSION_SUCCESS
+        is BVPlaybackLinkState.StartHeartbeatSuccess -> //START_HEARTBEAT_SUCCESS
+        is BVPlaybackLinkState.EndPlaybackSessionSuccess -> //END_PLAYBACK_SESSION_SUCCESS
+        is BVPlaybackLinkState.Failure -> state.bvPlaybackLinkError.message
     }
 }
 ```
