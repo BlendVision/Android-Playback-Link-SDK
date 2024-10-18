@@ -15,37 +15,39 @@ The PlaybackLink SDK is an assist for dealing with BlendVision Backend API
 
 [Gets username and password](https://github.com/BlendVision/Android-Playback-Link-SDK/wiki/Android%E2%80%90Playback%E2%80%90Link-pull-credentials)
 
-```groovy
+```kotlin
 dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-  repositories {
-    google()
-    mavenCentral()
-    //add below
-    maven {
-      url = uri("https://maven.pkg.github.com/blendvision/Android-Playback-Link-SDK")
-      credentials {
-        username = //TODO
-        password = //TODO
-      }
-    }
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        //add below
+        maven {
+            url = uri("https://maven.pkg.github.com/blendvision/Android-Packages")
+            credentials {
+                username = //TODO
+                    password = //TODO
+            }
+        }
 
-  }
+    }
 }
 ```
 
 ### Add the dependencies for the Player SDK to your module's app-level Gradle file, normally app/build.gradle:
 
-```groovy
+```kotlin
 dependencies {
-    implementation 'com.blendvision.playback.link:bvplaybacklink:$latest_version'
+    implementation("com.blendvision.playback.link:bvplaybacklink:$latest_version")
 }
 ```
 
 > **Note**: After making changes, don't forget to sync your Gradle files to ensure that the project
 > compiles successfully.
 
-## Usage
+## BVPlaybackLink Usage
+
+BVPlaybackLink is a helper tool for working with the BlendVision Backend API.
 
 ### Create a PlaybackLink instance:
 
@@ -70,11 +72,28 @@ playbackLink.updatePlaybackToken([YOUR_PLAYBACK_TOKEN])
 ```kotlin
 playbackLinker.stateEvent.collect { state ->
     when (state) {
-        is BVPlaybackLinkState.GetResourceInfoSuccess -> //GET_RESOURCE_INFO_SUCCESS
-        is BVPlaybackLinkState.StartPlaybackSessionSuccess -> //START_PLAYBACK_SESSION_SUCCESS
-        is BVPlaybackLinkState.StartHeartbeatSuccess -> //START_HEARTBEAT_SUCCESS
-        is BVPlaybackLinkState.EndPlaybackSessionSuccess -> //END_PLAYBACK_SESSION_SUCCESS
-        is BVPlaybackLinkState.Failure -> state.bvPlaybackLinkError.message
+        is BVPlaybackLinkState.GetResourceInfoSuccess -> {
+            // You can get the resource info from the state.
+            // For example:
+            // val resourceInfo = state.resourceInfo
+        }
+        is BVPlaybackLinkState.StartPlaybackSessionSuccess -> {
+            // You can get the playback session info from the state.
+            // For example:
+            // val playbackSessionInfo = state.playbackSessionInfo
+        }
+        is BVPlaybackLinkState.StartHeartbeatSuccess -> {
+            // The state indicates that the heartbeat has started successfully.
+        }
+        is BVPlaybackLinkState.EndPlaybackSessionSuccess -> {
+            // The state indicates that the playback session has ended successfully.
+        }
+        is BVPlaybackLinkState.Failure -> {
+            // The state indicates that failure and you can get the bvPlaybackLinkError object.
+            // for example:
+            // val errorCode = state.bvPlaybackLinkError.code
+            // val errorMessage = state.bvPlaybackLinkError.message
+        }
     }
 }
 ```
@@ -98,7 +117,7 @@ val analyticsConfig = AnalyticsConfig(
 )
 
 val playerConfig = PlayerConfig(
-    licensekey = "XXXXXX",
+    licensekey = "[YOUR_LICENSE_KEY]",
     serviceConfig = PlayerConfig.ServiceConfig(licenseVersion = PlayerConfig.ServiceConfig.LicenseVersion.V2)
 )
 
@@ -110,54 +129,110 @@ val player = UniPlayer.Builder(context = context,playerConfig = playerConfig).se
 
 ```kotlin
 playbackLink.startSession()
+player.start()
 ```
 
 ### To end a playback session, which stops the heartbeat to decrease concurrent viewers:
 
 ```kotlin
 playbackLink.endSession()
+player.stop()
 ```
 
 ### Remember to release the instance when it's no longer needed:
 
 ```kotlin
 playbackLink.release()
+player.release()
 ```
 
 > For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Sample)
 
-## Additional BVPlaybackLink APIs
+## BVPlayback Usage
+
+BVPlayback is a helper tool that integrates `BVPlybackLink` and `BVPlayer` to simplify live streaming playback.
+
+### Create a BVPlayback instance:
 
 ```kotlin
-    /**
-     * Get the current playback token
-     */
-    fun getCurrentPlaybackToken(): String
 
-    /**
-     * Update the playback token
-     */
-    fun updatePlaybackToken(token: String)
+//First, implement the BVPlaybackStateListener interface. Each state will represent the current BVPlayback state.
+private val bvPlaybackStateListener: BVPlaybackStateListener = object : BVPlaybackStateListener {
+    override fun onStateChanged(bvPlaybackState: BVPlaybackState) {
+        when (bvPlaybackState) {
+            is BVPlaybackState.GetResourceInfoSuccess -> {
+                // The state indicates that get resource info form BV Backend API successfully.
+            }
+            is BVPlaybackState.InitiatePlayerSuccess->{
+                // This state indicates that the player has been successfully initialized, and you can now retrieve the player interface for use.
+                // For example:
+                // val player: UnityPlayer = bvPlaybackState.player
+                // You can use the player interface to control the player.
+                // Remember to set the player to the player view.
+                // For example:
 
-    /**
-     * Get the resource info for analysis
-     *
-     * @return The resource info for analysis, or null if error occurred
-     */
-    suspend fun getResourceInfo(): ResourceInfo?
+                /**
+                playerView.setupControlPanel(
+                autoKeepScreenOnEnabled = true,
+                defaultPanelType = PanelType.EMBEDDED,
+                disableControlPanel = null
+                )
 
-    /**
-     * Start a playback session with updated playback token
-     */
-    fun startSession()
+                playerView.configureSettingOption(
+                SettingOptionConfig(forceHideAutoPlay = true)
+                )
 
-    /**
-     * End a playback session with updated playback token
-     */
-    fun endSession()
+                playerView.setUnifiedPlayer(player)
+                 */
 
-    /**
-     * Release this instance
-     */
-    fun release()
+            }
+            is BVPlaybackState.GetPlaybackSessionInfoSuccess -> {
+                // The state indicates that get playback session info form BV Backend API successfully.
+            }
+            is BVPlaybackState.GetDashUrlSuccess -> {
+                // The state indicates that get dash url successfully.
+            }
+            is BVPlaybackState.PlayerLoadSuccess -> {
+                // The state indicates that player load successfully.
+            }
+            is BVPlaybackState.PlayerStartSuccess -> {
+                // The state indicates that player start successfully.
+            }
+            is BVPlaybackState.Failure-> {
+                // The state indicates that failure and you can get the bvPlaybackError object.
+                // for example:
+                // val errorCode = bvPlaybackState.bvPlaybackError.code
+                // val errorMessage = bvPlaybackState.bvPlaybackError.message
+            }
+        }
+    }
+}
+
+// create a BVPlayback instance
+// lifecycle is the lifecycle of the activity or fragment
+// enableDebugMode is to enable debug mode, default is false
+val bvPlayback = BVPlayback.Builder(context = context, lifecycle = lifecycle)
+    .enableDebugMode(true)
+    .create(bvPlaybackStateListener)
+
 ```
+
+### load to play live streaming:
+
+Provide the playback token and player config to the BVPlayback instance to play live streaming.
+
+```kotlin
+val playerConfig = PlayerConfig(
+    licensekey = "[YOUR_LICENSE_KEY]",
+    serviceConfig = PlayerConfig.ServiceConfig(licenseVersion = PlayerConfig.ServiceConfig.LicenseVersion.V2)
+)
+
+bvPlayback.load(
+    playbackToken = "[YOUR_PLAYBACK_TOKEN]",
+    playerConfig = playerConfig
+)
+```
+
+> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Sample)
+
+#### If you want to know more about the APIs, please refer to the [APIs docs](https://blendvision.github.io/Android-Playback-Link-SDK/)
