@@ -146,7 +146,7 @@ playbackLink.release()
 player.release()
 ```
 
-> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Sample)
+> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Samples)
 
 ## BVPlayback Usage
 
@@ -233,6 +233,6 @@ bvPlayback.load(
 )
 ```
 
-> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Sample)
+> For a full code example, please refer to the [Sample app demo](https://github.com/BlendVision/Android-Playback-Link-Samples)
 
 #### If you want to know more about the APIs, please refer to the [APIs docs](https://blendvision.github.io/Android-Playback-Link-SDK/)
