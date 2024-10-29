@@ -26,7 +26,7 @@ dependencyResolutionManagement {
             url = uri("https://maven.pkg.github.com/blendvision/Android-Packages")
             credentials {
                 username = //TODO
-                    password = //TODO
+                password = //TODO
             }
         }
 

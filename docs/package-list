@@ -5,3 +5,8 @@ module:common
 com.blendvision.playback.link.common.presentation.entity
 module:core
 com.blendvision.playback.link.core.presentation
+module:core-playback
+com.blendvision.playback.link.core.playback.presentation
+com.blendvision.playback.link.core.playback.presentation.builder
+com.blendvision.playback.link.core.playback.presentation.entity
+com.blendvision.playback.link.core.playback.presentation.listener
