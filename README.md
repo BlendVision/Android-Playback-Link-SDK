@@ -111,10 +111,10 @@ val resourceInfo = playbackLink.getResourceInfo()
 
 ```kotlin
 // input the resource info to the analytics config
-val analyticsConfig = AnalyticsConfig(
-    resourceId = resourceInfo.id,
-    resourceType = resourceInfo.type
-)
+val analyticsConfig = AnalyticsConfig.Builder()
+.setResourceId(resourceInfo.id)
+.setResourceType(resourceInfo.type)
+.build()
 
 val playerConfig = PlayerConfig(
     licensekey = "[YOUR_LICENSE_KEY]",
